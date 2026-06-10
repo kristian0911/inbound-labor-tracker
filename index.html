@@ -342,7 +342,7 @@ function showBreakPrompt(bw){
     return '<button class="assoc-cb sel" data-bpn="'+esc(n)+'">'+esc(n.split(" ")[0])+'</button>';
   }).join("");
   showOv('<div class="modal"><h4>&#9646;&#9646; '+esc(bw.label)+'</h4>'+
-    '<p>It's '+bw.h+':'+String(bw.m).padStart(2,"0")+' — select associates to log downtime for this break.</p>'+
+    '<p>It\'s '+bw.h+':'+String(bw.m).padStart(2,"0")+' — select associates to log downtime for this break.</p>'+
     '<div class="assoc-check" id="bpChecks">'+checks+'</div>'+
     '<div class="row"><button class="btn ghost" id="bpSkipBreak">Skip</button>'+
     '<button class="btn primary" id="bpStartBreak">Start Downtime</button></div></div>');
