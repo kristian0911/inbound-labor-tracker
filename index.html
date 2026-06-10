@@ -713,8 +713,7 @@ function openImportPO(){
     var csv=(document.getElementById("csvPaste").value||"").trim();
     if(!poNum)return toast("Enter a PO number");
     if(!csv)return toast("Paste CSV data");
-    var lines=csv.split(/
-/).map(function(l){return l.trim();}).filter(Boolean);
+    var lines=csv.split('\n').map(function(l){return l.trim();}).filter(Boolean);
     /* detect and skip header row */
     var start=0;
     if(lines[0]&&lines[0].toLowerCase().includes("sku"))start=1;
@@ -926,11 +925,9 @@ function exportCSV(){
   var lines=[h.join(",")];
   rows.forEach(function(e){
     var c=[e.date,e.associate,actMap[e.activity].label,e.unit,e.units,hrs(e.durationSec).toFixed(3),(e.rate||0).toFixed(2),e.brand||"",e.packType||"",e.stdPPH||"",e.pctToStd!=null?pStr(e.pctToStd):"",e.poId||"",e.poSku||"",tstr(e.startTs),tstr(e.endTs)];
-    lines.push(c.map(function(v){v=String(v);return/[",
-]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(","));
+    lines.push(c.map(function(v){v=String(v);return/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(","));
   });
-  var blob=new Blob([lines.join("
-")],{type:"text/csv"});
+  var blob=new Blob([lines.join('\n')],{type:"text/csv"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="labor_log_"+today()+".csv";document.body.appendChild(a);a.click();a.remove();
   toast("Exported "+rows.length+" entries");
 }
@@ -1387,11 +1384,9 @@ function exportMonthCSV(){
     var c=[weekLabel(e.date),e.date,e.associate,titles[e.associate]||"",
       actMap[e.activity].label,e.unit,e.units,hrs(e.durationSec).toFixed(3),(e.rate||0).toFixed(2),
       e.brand||"",e.packType||"",e.poId||"",e.poSku||"",e.stdPPH||"",e.pctToStd!=null?pStr(e.pctToStd):""];
-    lines.push(c.map(function(v){v=String(v);return/[",
-]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(","));
+    lines.push(c.map(function(v){v=String(v);return/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(","));
   });
-  var blob=new Blob([lines.join("
-")],{type:"text/csv"});
+  var blob=new Blob([lines.join('\n')],{type:"text/csv"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download="neato_"+MONTH_NAMES[m].toLowerCase()+"_"+y+".csv";
   document.body.appendChild(a);a.click();a.remove();
