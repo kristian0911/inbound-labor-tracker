@@ -700,20 +700,48 @@ function openPOBreakdownStart(name,po,assignedSkus){
 function savePOs(){store.setJSON("pos_data",pos_data);}
 
 function openImportPO(){
-  showOv('<div class="modal"><h4>&#128196; Import PO from CSV</h4>'+
-    '<p>Paste CSV rows from your inventory system. Expected columns: SKU, Code, Part Number, Title, Classification, Cost, Qty, 3pl Qty</p>'+
-    '<input id="poNum" type="text" placeholder="PO Number (e.g. 778)" style="margin-bottom:8px"/>'+
-    '<input id="poVendor" type="text" placeholder="Vendor / Brand (e.g. Illy)" style="margin-bottom:8px"/>'+
-    '<textarea id="csvPaste" style="width:100%;height:120px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-family:JetBrains Mono,monospace;font-size:12px;padding:10px;outline:none;resize:vertical" placeholder="Paste CSV here..."></textarea>'+
-    '<div class="row"><button class="btn ghost" id="impCan">Cancel</button><button class="btn primary" id="impGo">Parse &amp; Review</button></div></div>');
-  document.getElementById("impCan").onclick=hideOv;
-  document.getElementById("impGo").onclick=function(){
-    var poNum=(document.getElementById("poNum").value||"").trim();
-    var vendor=(document.getElementById("poVendor").value||"").trim();
-    var csv=(document.getElementById("csvPaste").value||"").trim();
-    if(!poNum)return toast("Enter a PO number");
-    if(!csv)return toast("Paste CSV data");
-    var lines=csv.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+var _csvData='';
+showOv('<div class="modal"><h4>&#128196; Import PO from CSV</h4>'+
+'<p>Upload a CSV file from your inventory system or paste the rows manually.</p>'+
+'<input id="poNum" type="text" placeholder="PO Number (e.g. 778)" style="margin-bottom:8px"/>'+
+'<input id="poVendor" type="text" placeholder="Vendor / Brand (e.g. Illy)" style="margin-bottom:8px"/>'+
+'<div id="csvDropZone" style="width:100%;min-height:80px;background:var(--panel2);border:2px dashed var(--line);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:.2s;margin-bottom:8px;position:relative;overflow:hidden">'+
+'<input type="file" id="csvFileInput" accept=".csv,text/csv" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"/>'+
+'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--muted);pointer-events:none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'+
+'<div style="font-size:13px;color:var(--muted);pointer-events:none" id="dzLabel">Drop CSV file here or click to browse</div>'+
+'<div style="font-size:11px;color:var(--faint);pointer-events:none" id="dzSub">Accepts .csv files from your inventory system</div>'+
+'</div>'+
+'<div style="text-align:center;font-size:11px;color:var(--faint);margin:4px 0">&#8212; or paste CSV below &#8212;</div>'+
+'<textarea id="csvPaste" style="width:100%;height:100px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-family:JetBrains Mono,monospace;font-size:12px;padding:10px;outline:none;resize:vertical" placeholder="Paste CSV rows here..."></textarea>'+
+'<div class="row"><button class="btn ghost" id="impCan">Cancel</button><button class="btn primary" id="impGo">Parse &amp; Review</button></div></div>');
+document.getElementById("impCan").onclick=hideOv;
+var fileInput=document.getElementById("csvFileInput");
+var dropZone=document.getElementById("csvDropZone");
+function handleFile(file){
+if(!file)return;
+var reader=new FileReader();
+reader.onload=function(e){
+_csvData=e.target.result||'';
+document.getElementById("csvPaste").value=_csvData;
+document.getElementById("dzLabel").textContent='\u2713 '+file.name+' loaded';
+document.getElementById("dzLabel").style.color='var(--ok)';
+document.getElementById("dzSub").textContent=Math.round(file.size/1024*10)/10+' KB';
+dropZone.style.borderColor='var(--ok)';
+dropZone.style.background='rgba(245,197,24,.06)';
+};
+reader.readAsText(file);
+}
+fileInput.addEventListener('change',function(){if(fileInput.files[0])handleFile(fileInput.files[0]);});
+dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.style.borderColor='var(--ok)';dropZone.style.background='rgba(245,197,24,.06)';});
+dropZone.addEventListener('dragleave',function(){dropZone.style.borderColor='';dropZone.style.background='';});
+dropZone.addEventListener('drop',function(e){e.preventDefault();dropZone.style.borderColor='';dropZone.style.background='';var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)handleFile(f);});
+document.getElementById("impGo").onclick=function(){
+var poNum=(document.getElementById("poNum").value||'').trim();
+var vendor=(document.getElementById("poVendor").value||'').trim();
+var csv=(document.getElementById("csvPaste").value||'').trim();
+if(!poNum)return toast("Enter a PO number");
+if(!csv)return toast("Upload a CSV file or paste CSV data");
+var lines=csv.split('\n').map(function(l){return l.trim();}).filter(Boolean);
     /* detect and skip header row */
     var start=0;
     if(lines[0]&&lines[0].toLowerCase().includes("sku"))start=1;
