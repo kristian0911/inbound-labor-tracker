@@ -650,7 +650,7 @@ function openPOBreakdownStart(name,po,assignedSkus){
       var sel=bpSKU===s.sku;
       return'<div class="breakdown-sku-row'+(sel?" sel":"")+'" data-bdsku="'+esc(s.sku)+'" data-bdcpp="'+cpp+'" data-bdbrand="'+esc(s.brand||"")+'" data-bdstd="'+esc(s.std||"")+'">'+
         '<div style="flex:1">'+
-        '<div style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:14px">'+esc(s.sku)+'</div>'+
+        '<div style="font-family:"Saira Condensed",sans-serif;font-weight:600;font-size:14px">'+esc(s.sku)+'</div>'+
         '<div style="font-size:11px;color:var(--muted)">'+esc(s.brand||"")+(s.packType?" · "+esc(s.packType):"")+'</div>'+
         '</div>'+
         '<div style="text-align:right;font-size:11px;color:var(--muted)">'+
@@ -762,7 +762,7 @@ function inferBrand(sku){
 function openReviewPO(poNum,vendor,skus){
   var rows=skus.map(function(s,i){
     return'<div class="sku-picker-row" style="flex-wrap:wrap">'+
-      '<div style="flex:2;min-width:140px"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">'+esc(s.sku)+'</div>'+
+      '<div style="flex:2;min-width:140px"><div style="font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)">'+esc(s.sku)+'</div>'+
       '<div style="font-size:12px">'+esc(s.title)+'</div></div>'+
       '<input type="number" class="po-cpp" data-idx="'+i+'" value="'+s.casesPerPallet+'" min="0" step="1" placeholder="Cases/plt" title="Cases per pallet"/>'+
       '<input type="number" class="po-std" data-idx="'+i+'" value="'+(s.std||0)+'" min="0" step="1" placeholder="Std/hr" title="Standard cases/hr"/>'+
@@ -799,7 +799,7 @@ function openAssignPO(po){
       return'<button class="assoc-cb'+(sel?" sel":"")+'" data-asi="'+i+'" data-asn="'+esc(n)+'">'+esc(n.split(" ")[0])+'</button>';
     }).join("");
     return'<div style="padding:8px 0;border-bottom:1px solid var(--line)">'+
-      '<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">'+esc(s.sku)+'</div>'+
+      '<div style="font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)">'+esc(s.sku)+'</div>'+
       '<div style="font-size:12px;margin-bottom:6px">'+esc(s.brand||"")+(s.packType?" · "+esc(s.packType):"")+'</div>'+
       '<div class="assoc-check">'+chips+'</div></div>';
   }).join("");
@@ -1086,7 +1086,7 @@ function vInventory(){
     var rows=byBrand[brand].map(function(item,i){
       var globalIdx=inv_data.indexOf(item);
       return'<div class="sku-input-row">'+
-        '<div style="flex:1;font-size:12px"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">'+esc(item.sku)+'</div>'+
+        '<div style="flex:1;font-size:12px"><div style="font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)">'+esc(item.sku)+'</div>'+
         '<div>'+esc(item.packType||item.sku)+'</div></div>'+
         '<div style="font-size:11px;color:var(--muted);margin-right:6px">cases/plt:</div>'+
         '<input type="number" class="std-input sku-input-row" min="1" step="1" value="'+item.casesPerPallet+'" data-invcpp="'+globalIdx+'"/>'+
@@ -1210,7 +1210,7 @@ function vSumAssoc(src,dtSrc,label){
     var dtCell=dtMin>0?'<td class="mono w">'+Math.round(dtMin/60)+' min</td>':'<td class="mono" style="color:var(--faint)">&#8212;</td>';
     var fsMins=0;(fsBy[n]||[]).forEach(function(f){fsMins+=f.durationSec;});
     var fsCell=fsMins>0?'<td class="mono" style="color:var(--fiveS);font-weight:700">'+Math.round(fsMins/60)+' min</td>':'<td class="mono" style="color:var(--faint)">&#8212;</td>';
-    return'<tr><td style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:16px">'+esc(n)+'</td>'+tds+dtCell+fsCell+'</tr>';
+    return'<tr><td style="font-family:"Saira Condensed",sans-serif;font-weight:600;font-size:16px">'+esc(n)+'</td>'+tds+dtCell+fsCell+'</tr>';
   }).join("");
   return kpis+'<div class="panelbox"><table><thead>'+thead+'</thead><tbody>'+rows+'</tbody></table></div>';
 }
@@ -1247,7 +1247,7 @@ function vSumBrand(src,label){
         (app!=null?'<div class="'+pCls(app)+'" style="font-size:11px">'+pStr(app)+'</div>':'')+'</td>';
     }).join("");
     return'<tr>'+
-      '<td style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:'+(BRAND_CLR[g.brand]||"var(--ink)")+'">'+esc(g.brand)+'</td>'+
+      '<td style="font-family:"Saira Condensed",sans-serif;font-weight:700;font-size:16px;color:'+(BRAND_CLR[g.brand]||"var(--ink)")+'">'+esc(g.brand)+'</td>'+
       '<td style="color:var(--muted)">'+(g.packType?esc(g.packType):"&#8212;")+'</td>'+
       '<td class="mono">'+(g.std||"&#8212;")+'</td>'+
       '<td class="mono">'+g.list.length+'</td>'+
@@ -1262,7 +1262,7 @@ function saveStds(){store.setJSON("brands",brands);store.setJSON("actStds",actSt
 function vStandards(){
   var brows=brands.map(function(b,i){
     return'<tr>'+
-      '<td style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:15px;color:'+(BRAND_CLR[b.brand]||"var(--ink)")+'">'+esc(b.brand)+'</td>'+
+      '<td style="font-family:"Saira Condensed",sans-serif;font-weight:700;font-size:15px;color:'+(BRAND_CLR[b.brand]||"var(--ink)")+'">'+esc(b.brand)+'</td>'+
       '<td>'+esc(b.packType)+'</td>'+
       '<td><input class="std-input" type="number" min="1" step="1" value="'+b.std+'" data-si="'+i+'"/></td>'+
       '<td><button class="x" data-rmb="'+i+'">&#215;</button></td></tr>';
@@ -1271,7 +1271,7 @@ function vStandards(){
     var u=PREP_UNITS[pt]||"units";
     var hint=pt==="10oz Box Prep"?' <span style="color:var(--faint);font-size:11px">(1 pallet per 3 hrs)</span>':"";
     return'<tr>'+
-      '<td style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:15px;color:var(--prep)">'+esc(pt)+'</td>'+
+      '<td style="font-family:"Saira Condensed",sans-serif;font-weight:600;font-size:15px;color:var(--prep)">'+esc(pt)+'</td>'+
       '<td style="color:var(--muted)">'+u+'/hr'+hint+'</td>'+
       '<td><input class="std-input" type="number" min="0" step="any" value="'+(prepStds[pt]!==undefined?prepStds[pt]:0)+'" data-pk="'+esc(pt)+'"/></td>'+
       '<td></td></tr>';
@@ -1279,7 +1279,7 @@ function vStandards(){
   var arows=["returns","putaway","trailer"].map(function(k){
     var act=actMap[k];
     return'<tr>'+
-      '<td style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:15px">'+act.label+'</td>'+
+      '<td style="font-family:"Saira Condensed",sans-serif;font-weight:600;font-size:15px">'+act.label+'</td>'+
       '<td style="color:var(--muted)">'+act.unit+'/hr</td>'+
       '<td><input class="std-input" type="number" min="1" step="1" value="'+(actStds[k]||0)+'" data-ak="'+k+'"/></td>'+
       '<td></td></tr>';
@@ -1441,7 +1441,7 @@ function vHistory(){
         (avgP!=null?'<div class="hc-pct '+pCls(avgP)+'">'+pStr(avgP)+'</div>':'')+
         '<div class="hc-sub">'+u+' '+actObj.unit+'</div></td>';
     }).join("");
-    return'<tr><td style="padding:8px 12px;white-space:nowrap"><div style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:15px">'+esc(name)+'</div>'+
+    return'<tr><td style="padding:8px 12px;white-space:nowrap"><div style="font-family:"Saira Condensed",sans-serif;font-weight:600;font-size:15px">'+esc(name)+'</div>'+
       (titles[name]?'<div style="font-size:10px;color:var(--muted)">'+esc(titles[name])+'</div>':'')+
       '</td>'+cells+'</tr>';
   }).join("");
