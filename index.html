@@ -309,8 +309,17 @@ function stopDT(name){
 /* ===== 5S ===== */
 function startFS(name){
   if(active[name]||activeDT[name]||active5S[name])return;
-  active5S[name]={startTs:Date.now()};
-  store.setJSON("active5S",active5S);render();
+  showOv('<div class="modal"><h4>'+esc(name)+' \u00b7 5S / Cleaning</h4>'+
+    '<p>Start the 5S / Cleaning timer?</p>'+
+    '<div class="row"><button class="btn ghost" id="fsCan">Cancel</button>'+
+    '<button class="btn primary" id="fsOk">Start Timer</button></div></div>');
+  document.getElementById("fsOk").onclick=function(){
+    hideOv();
+    if(active[name]||activeDT[name]||active5S[name])return;
+    active5S[name]={startTs:Date.now()};
+    store.setJSON("active5S",active5S);render();
+  };
+  document.getElementById("fsCan").onclick=hideOv;
 }
 function stopFS(name){
   var fs=active5S[name];if(!fs)return;
