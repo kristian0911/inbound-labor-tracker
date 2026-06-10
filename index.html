@@ -469,6 +469,45 @@ function openPOBreakdownStop(name,a,dur,endTs){
   };
 }
 
+/* ===== EDIT START TIME ===== */
+function openEditStart(name){
+var a=active[name];if(!a)return;
+var d=new Date(a.startTs);
+var hh=String(d.getHours()).padStart(2,'0');
+var mm=String(d.getMinutes()).padStart(2,'0');
+var curTime=hh+':'+mm;
+showOv('<div class="modal"><h4>'+esc(name)+' &middot; Edit Start Time</h4>'+
+'<p>Adjust the start time for the current '+esc(actMap[a.activity].label)+' session.</p>'+
+'<div class="meta">Current start: <strong>'+tstr(a.startTs)+'</strong></div>'+
+'<input id="esTime" type="time" value="'+curTime+'" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-family:JetBrains Mono,monospace;font-size:28px;padding:13px 15px;outline:none;text-align:center;margin-bottom:8px"/>'+
+'<div id="esDurPreview" class="pct-preview" style="min-height:30px"></div>'+
+'<div class="row"><button class="btn ghost" id="esCan">Cancel</button><button class="btn primary" id="esOk">Update Start Time</button></div></div>');
+function updatePreview(){
+var val=document.getElementById('esTime').value;
+if(!val){document.getElementById('esDurPreview').innerHTML='';return;}
+var parts=val.split(':');
+var now=new Date();
+var newD=new Date(now.getFullYear(),now.getMonth(),now.getDate(),parseInt(parts[0]),parseInt(parts[1]),0);
+var diffMs=Date.now()-newD.getTime();
+if(diffMs<0){document.getElementById('esDurPreview').innerHTML='<span class="r">Start time is in the future</span>';return;}
+document.getElementById('esDurPreview').innerHTML='<span style="font-size:16px;font-weight:700">'+clock(diffMs/1000)+'</span><span style="color:var(--muted);font-size:11px">elapsed</span>';
+}
+document.getElementById('esTime').addEventListener('input',updatePreview);
+updatePreview();
+document.getElementById('esCan').onclick=hideOv;
+document.getElementById('esOk').onclick=function(){
+var val=document.getElementById('esTime').value;
+if(!val)return toast('Enter a valid time');
+var parts=val.split(':');
+var now=new Date();
+var newD=new Date(now.getFullYear(),now.getMonth(),now.getDate(),parseInt(parts[0]),parseInt(parts[1]),0);
+if(newD.getTime()>Date.now())return toast('Start time cannot be in the future');
+active[name].startTs=newD.getTime();
+store.setJSON('active',active);
+hideOv();render();
+toast(name+' start time updated to '+val);
+};
+}
 /* ===== DOWNTIME ===== */
 function startDT(name){
   if(active[name]||activeDT[name]||active5S[name])return;
@@ -987,8 +1026,13 @@ function vLive(){
         var poTag=a.poId?'<div style="font-size:10px;color:var(--po);margin-top:2px">PO #'+esc(a.poId.replace("po_","").substring(0,8))+(a.poSku?" · "+esc(a.poSku):"")+'</div>':'';
         return'<button class="act running" data-c="'+act.key+'" data-stop="'+esc(name)+'">'+
           '<div class="al"><span class="tick"></span>'+act.label+'</div>'+bl+poTag+
-          '<span class="rclock" data-clock="'+esc(name)+'">'+clock((Date.now()-a.startTs)/1000)+'</span>'+
-          '<div class="rstop">&#9679; Tap to stop</div></button>';
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">'+
+          '<span class="rclock" data-clock="'+esc(name)+'">'
+          +clock((Date.now()-a.startTs)/1000)
+          +'</span>'+
+          '<button class="x" style="font-size:13px;padding:2px 6px;color:var(--muted);font-family:Saira,sans-serif" data-editstart="'+esc(name)+'">&#9998; edit start</button>'+
+          '</div>'+
+          '<div class="rstop">&#9679; Tap to stop &nbsp;&middot;&nbsp; '+tstr(a.startTs)+' start</div></button>'
       }
       var cnt=todayCount(name,act.key);
       var dis=(isLive||isDT||isFS)?" dim":"";
@@ -1490,14 +1534,15 @@ function render(){
 
 /* ===== EVENTS ===== */
 document.addEventListener("click",function(ev){
-  var t=ev.target.closest("[data-start],[data-stop],[data-startdt],[data-stopdt],[data-startfs],[data-stopfs],[data-ab],[data-del],[data-deldtid],[data-del5s],[data-sp],[data-sv],[data-view],[data-ls],[data-rmb],[data-rm],[data-si],[data-poassign],[data-pocomplete],[data-podel],[data-histack],[data-histprev],[data-histnext],[data-exportmonth],[data-invcpp],[data-invrm]");
+  var t=ev.target.closest("[data-start],[data-stop],[data-startdt],[data-stopdt],[data-startfs],[data-stopfs],[data-ab],[data-del],[data-deldtid],[data-del5s],[data-sp],[data-sv],[data-view],[data-ls],[data-rmb],[data-rm],[data-si],[data-poassign],[data-pocomplete],[data-podel],[data-histack],[data-histprev],[data-histnext],[data-exportmonth],[data-invcpp],[data-invrm],[data-editstart]");
   if(!t)return;
   var d=t.dataset;
   if(d.histprev!=null){histMonth--;if(histMonth<0){histMonth=11;histYear--;}render();return;}
   if(d.histnext!=null){histMonth++;if(histMonth>11){histMonth=0;histYear++;}render();return;}
   if(d.histack){histAct=d.histack;render();return;}
   if(d.exportmonth!=null){exportMonthCSV();return;}
-  if(d.startfs){startFS(d.startfs);return;}
+  if(d.editstart){openEditStart(d.editstart);return;}
+if(d.startfs){startFS(d.startfs);return;}
   if(d.stopfs){stopFS(d.stopfs);return;}
   if(d.del5s){fiveS=fiveS.filter(function(e){return e.id!==d.del5s;});store.setJSON("fiveS",fiveS);render();return;}
   if(d.view){view=d.view;document.querySelectorAll(".tab").forEach(function(x){x.classList.toggle("active",x.dataset.view===view);});render();return;}
