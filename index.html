@@ -930,7 +930,7 @@ function render(){
 
 /* ===== EVENTS ===== */
 document.addEventListener("click",function(ev){
-  var t=ev.target.closest("[data-start],[data-stop],[data-startdt],[data-stopdt],[data-ab],[data-del],[data-deldtid],[data-sp],[data-sv],[data-view],[data-ls],[data-rmb],[data-rm],[data-si]");
+  var t=ev.target.closest("[data-start],[data-stop],[data-startdt],[data-stopdt],[data-startfs],[data-stopfs],[data-ab],[data-del],[data-deldtid],[data-del5s],[data-sp],[data-sv],[data-view],[data-ls],[data-rmb],[data-rm],[data-si]");
   if(!t)return;
   var d=t.dataset;
   if(d.histprev!=null){histMonth--;if(histMonth<0){histMonth=11;histYear--;}render();return;}
