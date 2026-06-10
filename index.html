@@ -745,7 +745,7 @@ function openPOBreakdownStart(name,po,assignedSkus){
   renderBDPicker();
 }
 /* ===== PO MANAGEMENT ===== */
-function savePOs(){store.setJSON("pos_data",pos_data);}
+function savePOs(){pos_data.sort(function(a,b){return(parseInt(a.poNumber)||0)-(parseInt(b.poNumber)||0);});store.setJSON("pos_data",pos_data);}
 
 function openImportPO(){
 var _csvData='';
@@ -1631,7 +1631,7 @@ setInterval(pollTruckTracker, 60000);
   if(!(await store.get("prepStds")))store.setJSON("prepStds",prepStds);
   titles=await store.getJSON("titles",null)||Object.assign({},DEFAULT_TITLES);
   if(!(await store.get("titles")))store.setJSON("titles",titles);
-  pos_data=await store.getJSON("pos_data",[]);
+  pos_data=await store.getJSON("pos_data",[]);pos_data.sort(function(a,b){return(parseInt(a.poNumber)||0)-(parseInt(b.poNumber)||0);});
   inv_data=await store.getJSON("inv_data",[]);
   seenTruckPOs=await store.getJSON("seenTruckPOs",{});
   /* ensure trailer standard is 35 */
