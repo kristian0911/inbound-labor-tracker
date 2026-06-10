@@ -562,6 +562,15 @@ function stopFS(name){
   toast(name+" · 5S: "+Math.round(dur/60)+" min logged");
   render();
 }
+/* ===== CONFIRM DELETE ===== */
+function confirmDelete(msg, onConfirm){
+showOv('<div class="modal"><h4>&#128465; Confirm Delete</h4>'+
+'<p>'+esc(msg)+'</p>'+
+'<div class="row"><button class="btn ghost" id="cdNo">Cancel</button>'+
+'<button class="btn danger" style="flex:1;justify-content:center;padding:13px" id="cdYes">Delete</button></div></div>');
+document.getElementById('cdNo').onclick=hideOv;
+document.getElementById('cdYes').onclick=function(){hideOv();onConfirm();};
+}
 /* ===== MODALS ===== */
 function showOv(html){document.getElementById("modalHost").innerHTML=html;document.getElementById("overlay").classList.add("on");}
 function hideOv(){document.getElementById("overlay").classList.remove("on");document.getElementById("modalHost").innerHTML="";}
@@ -1544,7 +1553,7 @@ document.addEventListener("click",function(ev){
   if(d.editstart){openEditStart(d.editstart);return;}
 if(d.startfs){startFS(d.startfs);return;}
   if(d.stopfs){stopFS(d.stopfs);return;}
-  if(d.del5s){fiveS=fiveS.filter(function(e){return e.id!==d.del5s;});store.setJSON("fiveS",fiveS);render();return;}
+  if(d.del5s){confirmDelete('Delete this 5S entry?',function(){fiveS=fiveS.filter(function(e){return e.id!==d.del5s;});store.setJSON("fiveS",fiveS);render();});return;}
   if(d.view){view=d.view;document.querySelectorAll(".tab").forEach(function(x){x.classList.toggle("active",x.dataset.view===view);});render();return;}
   if(d.start){var p=d.start.split("|"),n=p[0],k=p[1];if(BRANDED.indexOf(k)>=0){openBrandPicker(n,k);}else{doStart(n,k,null);}return;}
   if(d.stop){doStop(d.stop);return;}
@@ -1553,14 +1562,14 @@ if(d.startfs){startFS(d.startfs);return;}
   if(d.sp){sumPeriod=d.sp;render();return;}
   if(d.sv){sumSub=d.sv;render();return;}
   if(d.ls){logSub=d.ls;render();return;}
-  if(d.del){entries=entries.filter(function(e){return e.id!==d.del;});store.setJSON("entries",entries);render();return;}
-  if(d.deldtid){downtimes=downtimes.filter(function(e){return e.id!==d.deldtid;});store.setJSON("downtimes",downtimes);render();return;}
-  if(d.rm){var n2=d.rm;if(!active[n2]&&!activeDT[n2]){roster=roster.filter(function(x){return x!==n2;});store.setJSON("roster",roster);toast(n2+" removed");render();}return;}
-  if(d.rmb){brands.splice(parseInt(d.rmb),1);saveStds();render();return;}
+  if(d.del){confirmDelete('Delete this log entry?',function(){entries=entries.filter(function(e){return e.id!==d.del;});store.setJSON("entries",entries);render();});return;}
+  if(d.deldtid){confirmDelete('Delete this downtime entry?',function(){downtimes=downtimes.filter(function(e){return e.id!==d.deldtid;});store.setJSON("downtimes",downtimes);render();});return;}
+  if(d.rm){var n2=d.rm;if(!active[n2]&&!activeDT[n2]){confirmDelete('Remove '+n2+' from the roster?',function(){roster=roster.filter(function(x){return x!==n2;});store.setJSON("roster",roster);toast(n2+' removed');render();});}return;}
+  if(d.rmb){confirmDelete('Remove this brand standard?',function(){brands.splice(parseInt(d.rmb),1);saveStds();render();});return;}
   if(d.poassign){var po=pos_data.find(function(p){return p.id===d.poassign;});if(po)openAssignPO(po);return;}
   if(d.pocomplete){var po2=pos_data.find(function(p){return p.id===d.pocomplete;});if(po2)completePO(po2);return;}
-  if(d.podel){pos_data=pos_data.filter(function(p){return p.id!==d.podel;});savePOs();render();return;}
-  if(d.invrm){inv_data.splice(parseInt(d.invrm),1);store.setJSON("inv_data",inv_data);render();return;}
+  if(d.podel){confirmDelete('Remove this PO? This cannot be undone.',function(){pos_data=pos_data.filter(function(p){return p.id!==d.podel;});savePOs();render();});return;}
+  if(d.invrm){confirmDelete('Remove this SKU from inventory?',function(){inv_data.splice(parseInt(d.invrm),1);store.setJSON("inv_data",inv_data);render();});return;}
   if(d.ab==="roster"){openRoster();return;}
   if(d.ab==="export"){exportCSV();return;}
   if(d.ab==="clear"){confirmClear();return;}
