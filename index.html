@@ -264,9 +264,18 @@ setJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}
 };
 function syncToCloud(){
   var state={
-    roster:roster,entries:entries,downtimes:downtimes,fiveS:fiveS,
-    active:active,activeDT:activeDT,active5S:active5S,
-    titles:titles,prepStds:prepStds,brands:brands,actStds:actStds,inv_data:inv_data
+    roster:roster||[],
+    entries:entries||[],
+    downtimes:downtimes||[],
+    fiveS:fiveS||[],
+    active:active||{},
+    activeDT:activeDT||{},
+    active5S:active5S||{},
+    titles:titles||{},
+    prepStds:prepStds||{},
+    brands:brands||[],
+    actStds:actStds||{},
+    inv_data:inv_data||[]
   };
   fetch(API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'appState',value:state})});
 }
@@ -276,26 +285,45 @@ async function loadFromCloud(){
     var d=await r.json();
     if(d&&d.value){
       var s=d.value;
-      if(s.roster&&s.roster.length)roster=s.roster;
-      if(s.entries&&s.entries.length)entries=s.entries;
-      if(s.downtimes&&s.downtimes.length)downtimes=s.downtimes;
-      if(s.fiveS&&s.fiveS.length)fiveS=s.fiveS;
-      if(s.active&&Object.keys(s.active).length)active=s.active;
-      if(s.activeDT&&Object.keys(s.activeDT).length)activeDT=s.activeDT;
-      if(s.active5S&&Object.keys(s.active5S).length)active5S=s.active5S;
+      roster=s.roster||roster||[];
+      entries=s.entries||[];
+      downtimes=s.downtimes||[];
+      fiveS=s.fiveS||[];
+      active=s.active||{};
+      activeDT=s.activeDT||{};
+      active5S=s.active5S||{};
       if(s.titles&&Object.keys(s.titles).length)titles=s.titles;
       if(s.prepStds&&Object.keys(s.prepStds).length)prepStds=s.prepStds;
       if(s.brands&&s.brands.length)brands=s.brands;
       if(s.actStds&&Object.keys(s.actStds).length)actStds=s.actStds;
-      if(s.inv_data&&s.inv_data.length)inv_data=s.inv_data;
+      inv_data=s.inv_data||[];
     }
   }catch(e){}
 }
 async function pollState(){
-  await loadFromCloud();
-  render();
+  try{
+    var r=await fetch(API_BASE+'?key=appState',{cache:'no-cache'});
+    var d=await r.json();
+    if(d&&d.value){
+      var s=d.value;
+      roster=s.roster||roster||[];
+      entries=s.entries||[];
+      downtimes=s.downtimes||[];
+      fiveS=s.fiveS||[];
+      active=s.active||{};
+      activeDT=s.activeDT||{};
+      active5S=s.active5S||{};
+      if(s.titles&&Object.keys(s.titles).length)titles=s.titles;
+      if(s.prepStds&&Object.keys(s.prepStds).length)prepStds=s.prepStds;
+      if(s.brands&&s.brands.length)brands=s.brands;
+      if(s.actStds&&Object.keys(s.actStds).length)actStds=s.actStds;
+      inv_data=s.inv_data||[];
+      render();
+    }
+  }catch(e){}
   setTimeout(pollState,5000);
-}/* ===== CONFIG ===== */
+}
+/* ===== CONFIG ===== */
 var ACTS=[
 {key:"trailer", label:"Trailer Unload",unit:"pallets",color:"var(--trailer)"},
 {key:"breakdown",label:"Breakdown", unit:"cases", color:"var(--breakdown)"},
