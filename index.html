@@ -257,7 +257,7 @@ var API_BASE="https://neato-inbound-truck-tracker.vercel.app/api/data";
 var store={
 async get(k){try{if(window.storage){var r=await window.storage.get(k);return r;}}catch(e){return null;}},
 async set(k,v){try{if(window.storage)await window.storage.set(k,v)}catch(e){}},
-getJSON(k){try{var r=localStorage.getItem(k);return r?JSON.parse(r):null}catch(e){return null;}},
+getJSON(k,def){try{var r=localStorage.getItem(k);return r?JSON.parse(r):(def!==undefined?def:null)}catch(e){return def!==undefined?def:null;}},
 setJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}
   clearTimeout(_syncTimer);_syncTimer=setTimeout(syncToCloud,800);
 }
