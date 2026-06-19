@@ -1032,10 +1032,26 @@ function showTruckArrivalPrompt(tp){
   };
 }
 /* ===== ROSTER / CLEAR / EXPORT ===== */
+function renameAssociate(oldN,newN){
+  if(!newN||newN===oldN)return;
+  roster=roster.map(function(x){return x===oldN?newN:x;});
+  if(titles[oldN]!==undefined){titles[newN]=titles[oldN];delete titles[oldN];}
+  if(active[oldN]!==undefined){active[newN]=active[oldN];delete active[oldN];}
+  if(activeDT[oldN]!==undefined){activeDT[newN]=activeDT[oldN];delete activeDT[oldN];}
+  if(active5S[oldN]!==undefined){active5S[newN]=active5S[oldN];delete active5S[oldN];}
+  entries=entries.map(function(e){if(e.name===oldN){e=Object.assign({},e);e.name=newN;}return e;});
+  downtimes=downtimes.map(function(e){if(e.name===oldN){e=Object.assign({},e);e.name=newN;}return e;});
+  fiveS=fiveS.map(function(e){if(e.name===oldN){e=Object.assign({},e);e.name=newN;}return e;});
+  store.setJSON('roster',roster);
+  saveTitles();
+  syncToCloud();
+  render();
+  toast('Renamed to '+newN);
+}
 function openRoster(){
   var rows=roster.map(function(n){
     return'<div class="roster-row">'+
-      '<div><span style="font-size:15px;font-weight:500">'+esc(n)+'</span>'+
+      '<div><input type="text" data-nameinput="'+esc(n)+'" value="'+esc(n)+'" style="font-size:15px;font-weight:500;border:none;background:transparent;color:inherit;width:100%;outline:none;cursor:text" />'+
       '<input class="title-input" value="'+(titles[n]||'')+'" placeholder="Job title..." data-titlefor="'+esc(n)+'"/></div>'+
       '<button class="x" data-rm="'+esc(n)+'">&#215;</button></div>';
   }).join("")||'<p style="color:var(--faint)">No associates.</p>';
@@ -1648,6 +1664,7 @@ document.addEventListener("change",function(ev){
   if(t.dataset.ak){var v2=parseFloat(t.value);if(!isNaN(v2)&&v2>0){actStds[t.dataset.ak]=v2;saveStds();toast("Standard updated");}}
   if(t.dataset.pk){var v3=parseFloat(t.value);if(!isNaN(v3)&&v3>=0){prepStds[t.dataset.pk]=v3;saveStds();toast("Standard updated");}}
   if(t.dataset.titlefor){titles[t.dataset.titlefor]=(t.value||'').trim();saveTitles();}
+  if(t.dataset.nameinput){var _on=t.dataset.nameinput,_nn=(t.value||'').trim();if(_nn&&_nn!==_on){renameAssociate(_on,_nn);}}
   if(t.dataset.invcpp!=null){inv_data[parseInt(t.dataset.invcpp)].casesPerPallet=parseInt(t.value)||0;store.setJSON("inv_data",inv_data);}
 });
 document.getElementById("view").addEventListener("click",function(ev){
