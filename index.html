@@ -252,13 +252,50 @@ input:focus{border-color:var(--breakdown)}
 "use strict";
 /* ===== STORAGE ===== */
 var mem={};
+var _syncTimer=null;
+var API_BASE="https://neato-inbound-truck-tracker.vercel.app/api/data";
 var store={
-async get(k){try{if(window.storage){var r=await window.storage.get(k);return r?r.value:null;}}catch(e){}return(k in mem)?mem[k]:null;},
-async set(k,v){mem[k]=v;try{if(window.storage)await window.storage.set(k,v,false);}catch(e){}},
-async getJSON(k,d){var v=await this.get(k);if(v==null)return d;try{return JSON.parse(v);}catch(e){return d;}},
-async setJSON(k,o){await this.set(k,JSON.stringify(o));}
+async get(k){try{if(window.storage){var r=await window.storage.get(k);return r;}}catch(e){return null;}},
+async set(k,v){try{if(window.storage)await window.storage.set(k,v)}catch(e){}},
+getJSON(k){try{var r=localStorage.getItem(k);return r?JSON.parse(r):null}catch(e){return null;}},
+setJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}
+  clearTimeout(_syncTimer);_syncTimer=setTimeout(syncToCloud,800);
+}
 };
-/* ===== CONFIG ===== */
+function syncToCloud(){
+  var state={
+    roster:roster,entries:entries,downtimes:downtimes,fiveS:fiveS,
+    active:active,activeDT:activeDT,active5S:active5S,
+    titles:titles,prepStds:prepStds,brands:brands,actStds:actStds,inv_data:inv_data
+  };
+  fetch(API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'appState',value:state})});
+}
+async function loadFromCloud(){
+  try{
+    var r=await fetch(API_BASE+'?key=appState',{cache:'no-cache'});
+    var d=await r.json();
+    if(d&&d.value){
+      var s=d.value;
+      if(s.roster&&s.roster.length)roster=s.roster;
+      if(s.entries&&s.entries.length)entries=s.entries;
+      if(s.downtimes&&s.downtimes.length)downtimes=s.downtimes;
+      if(s.fiveS&&s.fiveS.length)fiveS=s.fiveS;
+      if(s.active&&Object.keys(s.active).length)active=s.active;
+      if(s.activeDT&&Object.keys(s.activeDT).length)activeDT=s.activeDT;
+      if(s.active5S&&Object.keys(s.active5S).length)active5S=s.active5S;
+      if(s.titles&&Object.keys(s.titles).length)titles=s.titles;
+      if(s.prepStds&&Object.keys(s.prepStds).length)prepStds=s.prepStds;
+      if(s.brands&&s.brands.length)brands=s.brands;
+      if(s.actStds&&Object.keys(s.actStds).length)actStds=s.actStds;
+      if(s.inv_data&&s.inv_data.length)inv_data=s.inv_data;
+    }
+  }catch(e){}
+}
+async function pollState(){
+  await loadFromCloud();
+  render();
+  setTimeout(pollState,5000);
+}/* ===== CONFIG ===== */
 var ACTS=[
 {key:"trailer", label:"Trailer Unload",unit:"pallets",color:"var(--trailer)"},
 {key:"breakdown",label:"Breakdown", unit:"cases", color:"var(--breakdown)"},
@@ -1636,9 +1673,12 @@ setInterval(pollTruckTracker, 60000);
   seenTruckPOs=await store.getJSON("seenTruckPOs",{});
   /* ensure trailer standard is 35 */
   if(!actStds["trailer"]||actStds["trailer"]!==35){actStds["trailer"]=35;store.setJSON("actStds",actStds);}
+  await loadFromCloud();
   render();
   /* initial truck tracker poll */
   setTimeout(pollTruckTracker,3000);
+  /* poll shared state every 5s */
+  setTimeout(pollState,5000);
 })();
 })();
 </script>
